@@ -41,6 +41,7 @@ RUN yum-config-manager --enable ol7_optional_latest && \
     yum-config-manager --add-repo https://yum.oracle.com/repo/OracleLinux/OL7/olcne14/x86_64 && \
     yum -y install kubectl-1.21.6-2.el7.x86_64 && \
     yum clean all && \
+    ln -s /usr/bin/vim /usr/bin/vi && \
     rm -rf /tmp/* /var/tmp/* /usr/share/doc/packages/* /usr/share/doc/manual/* /var/log/*
 
 RUN echo 'shell:x:1000:1000:shell,,,:/home/shell:/bin/bash' > /etc/passwd && \
