@@ -39,7 +39,7 @@ RUN yum-config-manager --enable ol7_optional_latest && \
     # NOTE - psmisc is needed for "killall" command, which Rancher uses to kill the proxy container on helm operation pods
     yum install -y bash bash-completion gzip jq tar unzip vim wget psmisc && \
     yum-config-manager --add-repo https://yum.oracle.com/repo/OracleLinux/OL7/olcne15/x86_64 && \
-    yum -y install kubectl-1.24.8-1.el7.x86_64 && \
+    yum -y install kubectl-1.23.7-1.el7.x86_64 && \
     yum clean all && \
     ln -s /usr/bin/vim /usr/bin/vi && \
     rm -rf /tmp/* /var/tmp/* /usr/share/doc/packages/* /usr/share/doc/manual/* /var/log/*
