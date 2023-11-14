@@ -29,7 +29,7 @@ FROM ghcr.io/oracle/oraclelinux:8-slim
 RUN microdnf update -y --setopt=install_weak_deps=0 --setopt=tsflags=nodocs && \
     microdnf install -y bash-completion gzip jq unzip vim wget && \
     microdnf install -y dnf && \
-    dnf install -y 'dnf-command(config-manager)' && \
+    microdnf install -y 'dnf-command(config-manager)' && \
     dnf config-manager --add-repo http://yum.oracle.com/repo/OracleLinux/OL8/olcne17/x86_64 && \
     microdnf install -y kubectl-1.26.6-1.el8.x86_64 && \
     microdnf clean all && \
