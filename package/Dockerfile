@@ -9,7 +9,7 @@ RUN microdnf update -y --setopt=install_weak_deps=0 --setopt=tsflags=nodocs && \
     microdnf clean all && \
     rm -rf /var/cache/yum /var/lib/rpm/*
 
-FROM ghcr.io/oracle/oraclelinux:8-slim as build
+FROM ghcr.io/oracle/oraclelinux:8 as build
 ARG ARCH=amd64
 RUN microdnf update -y --setopt=install_weak_deps=0 --setopt=tsflags=nodocs && \
     microdnf install -y gzip && \
@@ -54,6 +54,7 @@ RUN echo 'shell:x:1000:1000:shell,,,:/home/shell:/bin/bash' > /etc/passwd && \
 
 COPY --from=helm ./helm/bin/helm /usr/local/bin/
 COPY --from=build /k9s ./kustomize* /usr/local/bin/
+COPY --from=build /bin/xargs /bin
 COPY package/helm-cmd package/welcome /usr/local/bin/
 COPY kustomize.sh /home/shell/
 COPY THIRD_PARTY_LICENSES.txt LICENSE SECURITY.md /LICENSES/
