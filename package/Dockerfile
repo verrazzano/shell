@@ -11,9 +11,9 @@ RUN microdnf update -y --setopt=install_weak_deps=0 --setopt=tsflags=nodocs && \
 
 FROM ghcr.io/oracle/oraclelinux:8 as build
 ARG ARCH=amd64
-RUN microdnf update -y --setopt=install_weak_deps=0 --setopt=tsflags=nodocs && \
-    microdnf install -y gzip && \
-    microdnf clean all && \
+RUN dnf update -y --setopt=install_weak_deps=0 --setopt=tsflags=nodocs && \
+    dnf install -y gzip && \
+    dnf clean all && \
     rm -rf /var/cache/yum /var/lib/rpm/*
 
 ENV KUSTOMIZE_VERSION v5.0.2
