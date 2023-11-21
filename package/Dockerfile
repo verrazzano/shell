@@ -2,7 +2,7 @@ FROM ghcr.io/oracle/oraclelinux:8-slim as helm
 ARG HELM_VERSION=3.9.0-rancher1
 RUN microdnf update -y --setopt=install_weak_deps=0 --setopt=tsflags=nodocs && \
     microdnf install -y make git && \
-    microdnf install -y golang-1.19.13-1.module+el8.8.0+21189+9e6e1f9f.x86_64 && \
+    microdnf install -y golang-1.20.10-1.module+el8.9.0+90068+08775a1f.x86_64 && \
     # Rancher uses its own Helm fork - build and install our BFS of that fork.
     git -C / clone --branch oracle/release/${HELM_VERSION} --depth=1 https://github.com/verrazzano/helm && \
     make -C /helm && \
