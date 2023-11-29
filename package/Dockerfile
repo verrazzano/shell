@@ -6,7 +6,7 @@ RUN microdnf update -y --setopt=install_weak_deps=0 --setopt=tsflags=nodocs && \
     # Rancher uses its own Helm fork - build and install our BFS of that fork.
     git -C / clone --branch oracle/release/${HELM_VERSION} --depth=1 https://github.com/verrazzano/helm && \
     make -C /helm
-    
+
 FROM ghcr.io/oracle/oraclelinux:8 as build
 ARG ARCH=amd64
 RUN dnf update -y --setopt=install_weak_deps=0 --setopt=tsflags=nodocs && \
@@ -21,7 +21,7 @@ RUN if [ "${ARCH}" = "amd64" ] || [ "${ARCH}" = "arm64" ] || [ "${ARCH}" = "s390
     curl -sLf ${KUSTOMIZE_URL} | tar -xzf - && chmod +x kustomize; \
     fi
 
-FROM ghcr.io/oracle/oraclelinux:7-slim
+FROM ghcr.io/oracle/oraclelinux:8-slim
 
 RUN microdnf update -y --setopt=install_weak_deps=0 --setopt=tsflags=nodocs && \
     microdnf install -y bash-completion gzip jq unzip vim wget && \
