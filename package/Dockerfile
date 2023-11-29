@@ -1,26 +1,16 @@
-FROM ghcr.io/oracle/oraclelinux:7-slim as helm
+FROM ghcr.io/oracle/oraclelinux:8-slim as helm
 ARG HELM_VERSION=3.9.0-rancher1
-RUN yum install -y make && \
-    yum install -y oracle-golang-release-el7 && \
-    yum-config-manager --enable ol7_developer_golang117 && \
-    yum install -y golang-1.17.5 && \
-    # software collections repo needed for git 2.x on OL7
-    yum-config-manager --add-repo=http://yum.oracle.com/repo/OracleLinux/OL7/SoftwareCollections/x86_64 && \
-    yum install -y rh-git227 && \
-    # Set up needed to ensure git 2.27 from rh-git227 is on the path (gitjob original v0.1.30 image uses git version 2.35.3)
-    ln /opt/rh/rh-git227/enable /etc/profile.d/git.sh && \
-    source /etc/profile.d/git.sh && \
-    git version && \
+RUN microdnf update -y --setopt=install_weak_deps=0 --setopt=tsflags=nodocs && \
+    microdnf install -y make git && \
+    microdnf install -y golang-1.20.10-1.module+el8.9.0+90068+08775a1f.x86_64 && \
     # Rancher uses its own Helm fork - build and install our BFS of that fork.
     git -C / clone --branch oracle/release/${HELM_VERSION} --depth=1 https://github.com/verrazzano/helm && \
     make -C /helm
 
-FROM ghcr.io/oracle/oraclelinux:7-slim as build
+FROM ghcr.io/oracle/oraclelinux:8 as build
 ARG ARCH=amd64
-RUN yum-config-manager --enable ol7_optional_latest && \
-    yum-config-manager --enable ol7_addons && \
-    yum update -y && \
-    yum install -y bash curl gzip tar
+RUN dnf update -y --setopt=install_weak_deps=0 --setopt=tsflags=nodocs && \
+    dnf install -y gzip
 
 ENV KUSTOMIZE_VERSION v4.5.5
 ENV KUSTOMIZE_URL=https://github.com/kubernetes-sigs/kustomize/releases/download/kustomize/${KUSTOMIZE_VERSION}/kustomize_${KUSTOMIZE_VERSION}_linux_${ARCH}.tar.gz
@@ -31,16 +21,16 @@ RUN if [ "${ARCH}" = "amd64" ] || [ "${ARCH}" = "arm64" ] || [ "${ARCH}" = "s390
     curl -sLf ${KUSTOMIZE_URL} | tar -xzf - && chmod +x kustomize; \
     fi
 
-FROM ghcr.io/oracle/oraclelinux:7-slim
+FROM ghcr.io/oracle/oraclelinux:8-slim
 
-RUN yum-config-manager --enable ol7_optional_latest && \
-    yum-config-manager --enable ol7_addons && \
-    yum update -y && \
-    # NOTE - psmisc is needed for "killall" command, which Rancher uses to kill the proxy container on helm operation pods
-    yum install -y bash bash-completion gzip jq tar unzip vim wget psmisc && \
-    yum-config-manager --add-repo https://yum.oracle.com/repo/OracleLinux/OL7/olcne15/x86_64 && \
-    yum -y install kubectl-1.23.7-1.el7.x86_64 && \
-    yum clean all && \
+RUN microdnf update -y --setopt=install_weak_deps=0 --setopt=tsflags=nodocs && \
+    microdnf install -y bash-completion gzip jq unzip vim wget && \
+    microdnf install -y dnf && \
+    microdnf install -y 'dnf-command(config-manager)' && \
+    dnf config-manager --add-repo http://yum.oracle.com/repo/OracleLinux/OL8/olcne17/x86_64 && \
+    microdnf install -y kubectl-1.26.6-1.el8.x86_64 && \
+    microdnf clean all && \
+    rm -rf /var/cache/yum /var/lib/rpm/* && \
     ln -s /usr/bin/vim /usr/bin/vi && \
     rm -rf /tmp/* /var/tmp/* /usr/share/doc/packages/* /usr/share/doc/manual/* /var/log/*
 
@@ -59,6 +49,7 @@ RUN echo 'shell:x:1000:1000:shell,,,:/home/shell:/bin/bash' > /etc/passwd && \
 
 COPY --from=helm ./helm/bin/helm /usr/local/bin/
 COPY --from=build /k9s ./kustomize* /usr/local/bin/
+COPY --from=build /bin/xargs /bin
 COPY package/helm-cmd package/welcome /usr/local/bin/
 COPY kustomize.sh /home/shell/
 COPY THIRD_PARTY_LICENSES.txt LICENSE SECURITY.md /LICENSES/
