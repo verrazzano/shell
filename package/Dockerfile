@@ -65,6 +65,9 @@ COPY --from=build /bin/xargs /bin
 COPY --from=install-deps /etc/profile.d/bash_completion.sh /etc/profile.d/bash_completion.sh
 COPY --from=install-deps /usr/share/bash-completion/bash_completion /usr/share/bash-completion/bash_completion
 
+# Copy shared libraries
+COPY --from=install-deps /lib64 /lib64
+
 # Copy binaries
 COPY --from=install-deps /usr/bin/vim /usr/bin/vim
 COPY --from=install-deps /usr/bin/vi /usr/bin/vi
