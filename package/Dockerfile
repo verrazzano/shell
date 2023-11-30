@@ -54,8 +54,8 @@ RUN echo 'shell:x:1000:1000:shell,,,:/home/shell:/bin/bash' > /etc/passwd && \
 
 FROM ghcr.io/verrazzano/verrazzano-base:v1.0.0-20231025034637-742ef97
 
-COPY --from install-deps /etc/passwd
-COPY --from install-deps /etc/group
+COPY --from=install-deps install-deps /etc/passwd
+COPY --from=install-deps install-deps /etc/group
 
 COPY --from=helm ./helm/bin/helm /usr/local/bin/
 COPY --from=build /k9s ./kustomize* /usr/local/bin/
