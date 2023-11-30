@@ -25,7 +25,7 @@ RUN if [ "${ARCH}" = "amd64" ] || [ "${ARCH}" = "arm64" ] || [ "${ARCH}" = "s390
     curl -sLf ${KUSTOMIZE_URL} | tar -xzf - && chmod +x kustomize; \
     fi
 
-FROM ghcr.io/oracle/oraclelinux:8-slim
+FROM ghcr.io/oracle/oraclelinux:8-slim AS install-deps
 
 RUN microdnf update -y --setopt=install_weak_deps=0 --setopt=tsflags=nodocs && \
     microdnf install -y bash-completion gzip jq unzip vim wget && \
@@ -52,9 +52,29 @@ RUN echo 'shell:x:1000:1000:shell,,,:/home/shell:/bin/bash' > /etc/passwd && \
     chmod 700 /run && \
     mkdir -p /LICENSES
 
+FROM ghcr.io/verrazzano/verrazzano-base:v1.0.0-20231025034637-742ef97
+
+COPY --from install-deps /etc/passwd
+COPY --from install-deps /etc/group
+
 COPY --from=helm ./helm/bin/helm /usr/local/bin/
 COPY --from=build /k9s ./kustomize* /usr/local/bin/
 COPY --from=build /bin/xargs /bin
+
+# Copy bash completion files
+COPY --from=install-deps /etc/profile.d/bash_completion.sh /etc/profile.d/bash_completion.sh
+COPY --from=install-deps /usr/share/bash-completion/bash_completion /usr/share/bash-completion/bash_completion
+
+# Copy binaries
+COPY --from=install-deps /usr/bin/vim /usr/bin/vim
+COPY --from=install-deps /usr/bin/vi /usr/bin/vi
+COPY --from=install-deps /usr/bin/gzip /usr/bin/gzip
+COPY --from=install-deps /usr/bin/jq /usr/bin/jq
+COPY --from=install-deps /usr/bin/unzip /usr/bin/unzip
+COPY --from=install-deps /usr/bin/wget /usr/bin/wget
+
+COPY --from=install-deps /home/shell /home/shell
+
 COPY package/helm-cmd package/welcome /usr/local/bin/
 COPY kustomize.sh /home/shell/
 COPY THIRD_PARTY_LICENSES.txt LICENSE SECURITY.md /LICENSES/
