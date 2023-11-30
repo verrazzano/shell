@@ -72,6 +72,7 @@ COPY --from=install-deps /usr/bin/gzip /usr/bin/gzip
 COPY --from=install-deps /usr/bin/jq /usr/bin/jq
 COPY --from=install-deps /usr/bin/unzip /usr/bin/unzip
 COPY --from=install-deps /usr/bin/wget /usr/bin/wget
+COPY --from=install-deps /usr/bin/kubectl /usr/bin/kubectl
 
 COPY --from=install-deps /home/shell /home/shell
 
