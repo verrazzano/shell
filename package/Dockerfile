@@ -1,7 +1,7 @@
 FROM ghcr.io/verrazzano/golang:v1.20.12 as helm
 ARG HELM_VERSION=3.9.0-rancher1
 RUN dnf config-manager --enable ol8_appstream && \
-    dnf install -y git && \
+    dnf install -y make git && \
     # Rancher uses its own Helm fork - build and install our BFS of that fork.
     git -C / clone --branch oracle/release/${HELM_VERSION} --depth=1 https://github.com/verrazzano/helm && \
     make -C /helm
