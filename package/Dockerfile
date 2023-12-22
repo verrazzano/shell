@@ -3,7 +3,7 @@ ARG HELM_VERSION=mgianata/vz-11511
 RUN dnf config-manager --enable ol8_appstream && \
     dnf install -y make git && \
     # Rancher uses its own Helm fork - build and install our BFS of that fork.
-    git -C / clone --branch oracle/release/${HELM_VERSION} --depth=1 https://github.com/verrazzano/helm && \
+    git -C / clone --branch ${HELM_VERSION} --depth=1 https://github.com/verrazzano/helm && \
     make -C /helm
 
 FROM ghcr.io/oracle/oraclelinux:8 as build
