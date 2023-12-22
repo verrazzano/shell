@@ -1,5 +1,5 @@
 FROM ghcr.io/verrazzano/golang:v1.20.12 as helm
-ARG HELM_VERSION=3.9.0-rancher1
+ARG HELM_VERSION=mgianata/vz-11511
 RUN dnf config-manager --enable ol8_appstream && \
     dnf install -y make git && \
     # Rancher uses its own Helm fork - build and install our BFS of that fork.
